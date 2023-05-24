@@ -3,77 +3,10 @@
 #include <string>
 #include <algorithm>
 #include <fstream>
+//#include "Kategoria.h"
+#include "Haslo.h"
 
 using namespace std;
-
-class Haslo;
-class Kategoria;
-
-class Kategoria {
-private:
-    string nazwa;
-    vector<Haslo> hasla;
-
-public:
-    Kategoria(const string &nazwa) : nazwa(nazwa) {}
-
-    const string &getNazwa() const {
-        return nazwa;
-    }
-
-    bool operator<(const Kategoria& other) const {
-        return nazwa < other.nazwa;
-    }
-
-    void dodajHaslo (Haslo &haslo) {
-        hasla.push_back(haslo);
-    }
-
-    const vector<Haslo> getHasla() const{
-        return hasla;
-    }
-
-    void setHasla(const vector<Haslo> &hasla) {
-        Kategoria::hasla = hasla;
-    }
-
-    void usunHasla () {
-        hasla.clear();
-    }
-};
-
-class Haslo {
-private:
-    string nazwa;
-    string tresc;
-    Kategoria kategoria;
-    string stronaInternetowa;
-    string login;
-
-public:
-    Haslo(const string &nazwa, const string &tresc, const Kategoria &kategoria) : nazwa(nazwa), tresc(tresc), kategoria(kategoria) {}
-    Haslo(const string &nazwa, const string &tresc, const Kategoria &kategoria, const string &stronaInternetowa,const string &login) : nazwa(nazwa), tresc(tresc), kategoria(kategoria), stronaInternetowa(stronaInternetowa),login(login) {}
-
-    const string &getNazwa() const {
-        return nazwa;
-    }
-
-    const string &getTresc() const {
-        return tresc;
-    }
-
-    const Kategoria &getKategoria() const {
-        return kategoria;
-    }
-
-    const string &getStronaInternetowa() const {
-        return stronaInternetowa;
-    }
-
-    const string &getLogin() const {
-        return login;
-    }
-};
 
 class MenadzerHasel {
 private:
@@ -214,7 +147,7 @@ public:
         cout << "Usunieto kategorie" << endl;
     }
 
-    void posortujHasla() { // dziala
+    void posortujHasla() { // trzeba usprawnić, użytkowik może posortować po kilku rzeczach naraz, dodać 3 funkcję
         autoryzacja();
         int userInput;
 
@@ -246,7 +179,7 @@ public:
 
     }
 
-    void usunHaslo() { //dziala
+    void usunHaslo() { //dziala, ma też usuwac haslo z pliku
         autoryzacja();
         if (zapisaneHasla.empty()) {
             cout << "Brak zapisanych hasel" << endl;
@@ -278,7 +211,7 @@ public:
         }
     }
 
-    void wygenerujHaslo() { //dziala
+    void wygenerujHaslo() { //dziala, zamiast cin, dodac getLine aby pobrac cala linie
         cout << "Podaj dlugosc" << endl;
         int userLength;
         cin >> userLength;
@@ -322,27 +255,51 @@ public:
                 cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej kategorie" << endl;
                 string passName, categoryName;
                 cin >> passName >> categoryName;
-                Kategoria kategoria(categoryName);
-                wszystkieKategorie.push_back(kategoria);
-                Haslo haslo(passName, password, kategoria);
-                sprawdzHaslo(haslo);
-                kategoria.dodajHaslo(haslo);
-                zapisaneHasla.push_back(haslo);
-                plikHasel << haslo.getNazwa() << " " << haslo.getTresc() << " " << haslo.getKategoria().getNazwa() << endl;
+                bool czyDodane = false;
+                for (auto e : wszystkieKategorie) {
+                    if (e.getNazwa() == categoryName) {
+                        czyDodane = true;
+                        Haslo haslo=Haslo(passName, password, e);
+                        zapisaneHasla.push_back(haslo);
+                        sprawdzHaslo(haslo);
+                        plikHasel << haslo.getNazwa() << " " << haslo.getTresc() << " " << haslo.getKategoria().getNazwa() << endl;
+                    }
+                }
+                if (!czyDodane) {
+                    Kategoria kategoria(categoryName);
+                    wszystkieKategorie.push_back(kategoria);
+                    Haslo haslo(passName, password, kategoria);
+                    sprawdzHaslo(haslo);
+                    kategoria.dodajHaslo(haslo);
+                    zapisaneHasla.push_back(haslo);
+                    plikHasel << haslo.getNazwa() << " " << haslo.getTresc() << " " << haslo.getKategoria().getNazwa() << endl;
+                }
                 cout << "Haslo dodane" << endl;
                 break;
             }
             case 2: {
                 cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej kategorie, potem Strone WWW i na koncu login" << endl;
-                string passName, categoryName, site, login;
+                std::string passName, categoryName, site, login;
                 cin >> passName >> categoryName >> site >> login;
-                Kategoria kategoria(categoryName);
-                wszystkieKategorie.push_back(kategoria);
-                Haslo haslo(passName, password, kategoria, site, login);
-                sprawdzHaslo(haslo);
-                kategoria.dodajHaslo(haslo);
-                zapisaneHasla.push_back(haslo);
-                plikHasel << haslo.getNazwa() << " " << haslo.getTresc() << " " << haslo.getKategoria().getNazwa() << endl;
+                bool czyDodane = false;
+                for (auto e : wszystkieKategorie) {
+                    if (e.getNazwa() == categoryName) {
+                        czyDodane = true;
+                        Haslo haslo(passName, password, e, site, login);
+                        zapisaneHasla.push_back(haslo);
+                        sprawdzHaslo(haslo);
+                        plikHasel << haslo.getNazwa() << " " << haslo.getTresc() << " " << haslo.getKategoria().getNazwa() << endl;
+                    }
+                }
+                if (!czyDodane) {
+                    Kategoria kategoria(categoryName);
+                    wszystkieKategorie.push_back(kategoria);
+                    Haslo haslo(passName, password, kategoria, site, login);
+                    sprawdzHaslo(haslo);
+                    kategoria.dodajHaslo(haslo);
+                    zapisaneHasla.push_back(haslo);
+                    plikHasel << haslo.getNazwa() << " " << haslo.getTresc() << " " << haslo.getKategoria().getNazwa() << endl;
+                }
                 cout << "Haslo dodane" << endl;
                 break;
             }
@@ -373,14 +330,25 @@ public:
                 cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej jego tresc, nastepnie kategorie" << endl;
                 string passName, pass, categoryName;
                 cin >> passName >> pass >> categoryName;
-
-                Kategoria kategoria(categoryName);
-                wszystkieKategorie.push_back(kategoria);
-                Haslo haslo(passName, pass, kategoria);
-                sprawdzHaslo(haslo);
-                kategoria.dodajHaslo(haslo);
-                zapisaneHasla.push_back(haslo);
-                plikHasel << haslo.getNazwa() << " " << haslo.getTresc() << " " << haslo.getKategoria().getNazwa() << endl;
+                bool czyDodane = false;
+                for (auto e : wszystkieKategorie) {
+                    if (e.getNazwa() == categoryName) {
+                        czyDodane = true;
+                        Haslo haslo(passName, pass, e);
+                        zapisaneHasla.push_back(haslo);
+                        sprawdzHaslo(haslo);
+                        plikHasel << haslo.getNazwa() << " " << haslo.getTresc() << " " << haslo.getKategoria().getNazwa() << endl;
+                    }
+                }
+                if (!czyDodane) {
+                    Kategoria kategoria(categoryName);
+                    wszystkieKategorie.push_back(kategoria);
+                    Haslo haslo(passName, pass, kategoria);
+                    sprawdzHaslo(haslo);
+                    kategoria.dodajHaslo(haslo);
+                    zapisaneHasla.push_back(haslo);
+                    plikHasel << haslo.getNazwa() << " " << haslo.getTresc() << " " << haslo.getKategoria().getNazwa() << endl;
+                }
                 cout << "Haslo dodane" << endl;
                 break;
             }
@@ -388,14 +356,25 @@ public:
                 cout << "Podaj nazwe pod jaka ma byc zapisane haslo, nastepnie jego tresc, pozniej kategorie, potem Strone WWW i na koncu login" << endl;
                 string passName, pass, categoryName, site, login;
                 cin >> passName >> pass >> categoryName >> site >> login;
-
-                Kategoria kategoria(categoryName);
-                wszystkieKategorie.push_back(kategoria);
-                Haslo haslo(passName, pass, kategoria, site, login);
-                sprawdzHaslo(haslo);
-                kategoria.dodajHaslo(haslo);
-                zapisaneHasla.push_back(haslo);
-                plikHasel << haslo.getNazwa() << " " << haslo.getTresc() << " " << haslo.getKategoria().getNazwa() << endl;
+                bool czyDodane = false;
+                for (auto e : wszystkieKategorie) {
+                    if (e.getNazwa() == categoryName) {
+                        czyDodane = true;
+                        Haslo haslo(passName, pass, e, site, login);
+                        zapisaneHasla.push_back(haslo);
+                        sprawdzHaslo(haslo);
+                        plikHasel << haslo.getNazwa() << " " << haslo.getTresc() << " " << haslo.getKategoria().getNazwa() << endl;
+                    }
+                }
+                if (!czyDodane) {
+                    Kategoria kategoria(categoryName);
+                    wszystkieKategorie.push_back(kategoria);
+                    Haslo haslo(passName, pass, kategoria, site, login);
+                    sprawdzHaslo(haslo);
+                    kategoria.dodajHaslo(haslo);
+                    zapisaneHasla.push_back(haslo);
+                    plikHasel << haslo.getNazwa() << " " << haslo.getTresc() << " " << haslo.getKategoria().getNazwa() << endl;
+                }
                 cout << "Haslo dodane" << endl;
                 break;
             }
