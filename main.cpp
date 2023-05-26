@@ -3,10 +3,72 @@
 #include <string>
 #include <algorithm>
 #include <fstream>
-//#include "Kategoria.h"
-#include "Haslo.h"
 
 using namespace std;
+
+class Haslo;
+class Kategoria;
+class MenadzerHasel;
+
+class Kategoria {
+private:
+    string nazwa;
+    vector<Haslo> hasla;
+
+public:
+    Kategoria(const string &nazwa) : nazwa(nazwa) {}
+
+    const string &getNazwa() const {
+        return nazwa;
+    }
+
+    bool operator<(const Kategoria& other) const {
+        return nazwa < other.nazwa;
+    }
+
+    void dodajHaslo (Haslo &haslo) {
+        hasla.push_back(haslo);
+    }
+
+    void usunHasla () {
+        hasla.clear();
+    }
+
+
+};
+
+class Haslo {
+private:
+    string nazwa;
+    string tresc;
+    Kategoria kategoria;
+    string stronaInternetowa;
+    string login;
+
+public:
+    Haslo(const string &nazwa, const string &tresc, const Kategoria &kategoria) : nazwa(nazwa), tresc(tresc), kategoria(kategoria) {}
+    Haslo(const string &nazwa, const string &tresc, const Kategoria &kategoria, const string &stronaInternetowa,const string &login) : nazwa(nazwa), tresc(tresc), kategoria(kategoria), stronaInternetowa(stronaInternetowa),login(login) {}
+
+    const string &getNazwa() const {
+        return nazwa;
+    }
+
+    const string &getTresc() const {
+        return tresc;
+    }
+
+    const Kategoria &getKategoria() const {
+        return kategoria;
+    }
+
+    const string &getStronaInternetowa() const {
+        return stronaInternetowa;
+    }
+
+    const string &getLogin() const {
+        return login;
+    }
+};
 
 class MenadzerHasel {
 private:
@@ -74,12 +136,24 @@ public:
         }
     }
 
-    void odczytajZawartoscPliku() {
-        // implementacja odczytu zawartości pliku
+    void odszyfrujPlik(const string &nazwaPliku) {
+        auto testStream = fstream (nazwaPliku,  ios::in | ios::out);
+        char znak;
+        while (testStream.get(znak)) {
+            testStream << znak+1;
+        }
+        testStream.close();
+        cout << "plik zaszyfrowany" << endl;
     }
 
-    void zaszyfrujPlik() {
-        // implementacja szyfrowania pliku
+   void zaszyfrujPlik(const string &nazwaPliku) {
+        auto testStream = fstream (nazwaPliku,  ios::in | ios::out);
+        char znak;
+        while (testStream.get(znak)) {
+            testStream << znak+1;
+        }
+        testStream.close();
+        cout << "plik zaszyfrowany" << endl;
     }
 
     void dodajHaslo() { //zeby nie robic za kazdym razem nowej kategorii jesli zadana juz istnieje
@@ -122,7 +196,8 @@ public:
         autoryzacja();
         cout << "Podaj nazwe kategorii" << endl;
         string userInput;
-        cin >> userInput;
+        cin.ignore();
+        getline(cin , userInput);
         Kategoria kategoria(userInput);
         wszystkieKategorie.push_back(kategoria);
         for (auto e : wszystkieKategorie)
@@ -204,7 +279,8 @@ public:
         autoryzacja();
         cout << "Podaj parametry (nazwa, tresc, kategoria, strona WWW, login)" << endl;
         string userInput;
-        cin >> userInput;
+        cin.ignore();
+        getline(cin, userInput);
         for (auto e : zapisaneHasla) {
             if (e.getTresc() == userInput || e.getNazwa() == userInput || e.getKategoria().getNazwa() == userInput || e.getLogin() == userInput || e.getStronaInternetowa() == userInput)
                 cout << "Haslo spelniajace conajmniej jeden parametr: " << e.getTresc() << endl;
@@ -254,12 +330,14 @@ public:
             case 1: {
                 cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej kategorie" << endl;
                 string passName, categoryName;
-                cin >> passName >> categoryName;
+                cin.ignore();
+                getline(cin, passName);
+                getline(cin, categoryName);
                 bool czyDodane = false;
                 for (auto e : wszystkieKategorie) {
                     if (e.getNazwa() == categoryName) {
                         czyDodane = true;
-                        Haslo haslo=Haslo(passName, password, e);
+                        Haslo haslo(passName, password, e);
                         zapisaneHasla.push_back(haslo);
                         sprawdzHaslo(haslo);
                         plikHasel << haslo.getNazwa() << " " << haslo.getTresc() << " " << haslo.getKategoria().getNazwa() << endl;
@@ -279,8 +357,12 @@ public:
             }
             case 2: {
                 cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej kategorie, potem Strone WWW i na koncu login" << endl;
-                std::string passName, categoryName, site, login;
-                cin >> passName >> categoryName >> site >> login;
+                string passName, categoryName, site, login;
+                cin.ignore();
+                getline(cin, passName);
+                getline(cin, categoryName);
+                getline(cin, site);
+                getline(cin, login);
                 bool czyDodane = false;
                 for (auto e : wszystkieKategorie) {
                     if (e.getNazwa() == categoryName) {
@@ -329,7 +411,10 @@ public:
             case 2: {
                 cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej jego tresc, nastepnie kategorie" << endl;
                 string passName, pass, categoryName;
-                cin >> passName >> pass >> categoryName;
+                cin.ignore();
+                getline(cin, passName);
+                getline(cin, pass);
+                getline(cin, categoryName);
                 bool czyDodane = false;
                 for (auto e : wszystkieKategorie) {
                     if (e.getNazwa() == categoryName) {
@@ -355,7 +440,12 @@ public:
             case 4: {
                 cout << "Podaj nazwe pod jaka ma byc zapisane haslo, nastepnie jego tresc, pozniej kategorie, potem Strone WWW i na koncu login" << endl;
                 string passName, pass, categoryName, site, login;
-                cin >> passName >> pass >> categoryName >> site >> login;
+                cin.ignore();
+                getline(cin, passName);
+                getline(cin, pass);
+                getline(cin, categoryName);
+                getline(cin, site);
+                getline(cin, login);
                 bool czyDodane = false;
                 for (auto e : wszystkieKategorie) {
                     if (e.getNazwa() == categoryName) {
@@ -430,6 +520,7 @@ int main() {
                 break;
             case 3:
                 menadzerHasel.dodajHaslo();
+                menadzerHasel.zaszyfrujPlik(userInput);
                 break;
             case 4:
                 menadzerHasel.edytujHaslo();
@@ -454,8 +545,8 @@ int main() {
                 break;
         }
     }
-
-    menadzerHasel.zamknijStrumien();
+    menadzerHasel.odszyfrujPlik(userInput);
+    //menadzerHasel.odczytajZawartoscPliku(userInput);
 
     return 0;
 }
