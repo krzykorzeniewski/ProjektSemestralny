@@ -22,6 +22,10 @@ public:
         return nazwa;
     }
 
+    void setNazwa(const string &nazwa) {
+        this->nazwa = nazwa;
+    }
+
     bool operator<(const Kategoria& other) const {
         return nazwa < other.nazwa;
     }
@@ -33,7 +37,6 @@ public:
     void usunHasla () {
         hasla.clear();
     }
-
 
 };
 
@@ -51,6 +54,26 @@ public:
 
     const string &getNazwa() const {
         return nazwa;
+    }
+
+    void zmienNazweKategorii(const string &nazwa) {
+        this->kategoria.setNazwa(nazwa);
+    }
+
+    void setNazwa(const string &nazwa) {
+        Haslo::nazwa = nazwa;
+    }
+
+    void setKategoria(const Kategoria &kategoria) {
+        Haslo::kategoria = kategoria;
+    }
+
+    void setStronaInternetowa(const string &stronaInternetowa) {
+        Haslo::stronaInternetowa = stronaInternetowa;
+    }
+
+    void setLogin(const string &login) {
+        Haslo::login = login;
     }
 
     void setTresc(const string &tresc) {
@@ -84,6 +107,8 @@ private:
     ofstream plikHasel;
 
 public:
+
+
 
     void otworzStrumien (string s) {
         plikHasel.open(s);
@@ -259,7 +284,8 @@ public:
         bool czyIstnieje = false;
         int index;
         string userPassword;
-        string newUserPassword;
+        string userChange;
+        int userNumber;
         cin >> userPassword;
 
         for (int i = 0; i < zapisaneHasla.size(); i++) {
@@ -269,13 +295,45 @@ public:
             }
         }
 
-        if (czyIstnieje) {
-            cout << "Podaj nowe haslo" << endl;
-            cin >> newUserPassword;
-            zapisaneHasla.at(index).setTresc(newUserPassword);
-        } else
-            cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
+        cout << "Wybierz co, chcesz edytowac" << endl;
+        cout << "1 - nazwa hasla" << endl;
+        cout << "2 - tresc hasla" << endl;
+        cout << "3 - kategoria" << endl;
 
+        cin >> userNumber;
+
+        switch (userNumber) {
+            case 1: {
+                if (czyIstnieje) {
+                    cout << "Podaj nowa nazwe hasla" << endl;
+                    cin >> userChange;
+                    zapisaneHasla.at(index).setNazwa(userChange);
+                } else
+                    cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
+                break;
+            }
+            case 2: {
+                if (czyIstnieje) {
+                    cout << "Podaj nowa tresc hasla" << endl;
+                    cin >> userChange;
+                    zapisaneHasla.at(index).setTresc(userChange);
+                } else
+                    cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
+                break;
+            }
+            case 3: {
+                if (czyIstnieje) {
+                    cout << "Podaj nowa kategorie hasla" << endl;
+                    cin >> userChange;
+                    zapisaneHasla.at(index).zmienNazweKategorii(userChange);
+                } else
+                    cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
+                break;
+            }
+            default:
+                cout << "cos poszlo nie tak" << endl;
+                break;
+        }
     }
 
     void usunHaslo() { //dziala, ma też usuwac haslo z pliku
