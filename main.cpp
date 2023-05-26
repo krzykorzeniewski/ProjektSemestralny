@@ -53,6 +53,10 @@ public:
         return nazwa;
     }
 
+    void setTresc(const string &tresc) {
+        Haslo::tresc = tresc;
+    }
+
     const string &getTresc() const {
         return tresc;
     }
@@ -140,7 +144,7 @@ public:
         auto testStream = fstream (nazwaPliku,  ios::in | ios::out);
         char znak;
         while (testStream.get(znak)) {
-            testStream << znak+1;
+            testStream << znak-1;
         }
         testStream.close();
         cout << "plik zaszyfrowany" << endl;
@@ -150,7 +154,7 @@ public:
         auto testStream = fstream (nazwaPliku,  ios::in | ios::out);
         char znak;
         while (testStream.get(znak)) {
-            testStream << znak+1;
+            testStream << '$';
         }
         testStream.close();
         cout << "plik zaszyfrowany" << endl;
@@ -249,8 +253,28 @@ public:
             cout << e.getTresc() << endl;
     }
 
-    void edytujHaslo() {
+    void edytujHaslo() { //dodac mozliwosc edytowania nie tylko tresci ale tez nazwy i kategorii
         autoryzacja();
+        cout << "Wpisz haslo, ktore chesz edytowac" << endl;
+        bool czyIstnieje = false;
+        int index;
+        string userPassword;
+        string newUserPassword;
+        cin >> userPassword;
+
+        for (int i = 0; i < zapisaneHasla.size(); i++) {
+            if (userPassword == zapisaneHasla.at(i).getTresc()) {
+                index = i;
+                czyIstnieje = true;
+            }
+        }
+
+        if (czyIstnieje) {
+            cout << "Podaj nowe haslo" << endl;
+            cin >> newUserPassword;
+            zapisaneHasla.at(index).setTresc(newUserPassword);
+        } else
+            cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
 
     }
 
@@ -520,7 +544,7 @@ int main() {
                 break;
             case 3:
                 menadzerHasel.dodajHaslo();
-                menadzerHasel.zaszyfrujPlik(userInput);
+                //menadzerHasel.zaszyfrujPlik(userInput);
                 break;
             case 4:
                 menadzerHasel.edytujHaslo();
@@ -545,7 +569,7 @@ int main() {
                 break;
         }
     }
-    menadzerHasel.odszyfrujPlik(userInput);
+   // menadzerHasel.odszyfrujPlik(userInput);
     //menadzerHasel.odczytajZawartoscPliku(userInput);
 
     return 0;
