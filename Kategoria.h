@@ -7,22 +7,19 @@
 #include <string>
 #include <vector>
 #include "Haslo.h"
+using namespace std;
 
 class Haslo;
 
 class Kategoria {
 private:
-    std::string nazwa;
-    std::vector<Haslo*> hasla;
-
+    string nazwa;
+    vector<Haslo*> hasla;
 public:
-    Kategoria(const std::string& nazwa);
-
+    Kategoria(const string& nazwa);
     const std::string& getNazwa() const;
-    void setNazwa(const std::string& nazwa);
-
+    void setNazwa(const string& nazwa);
     bool operator<(const Kategoria& other) const;
-
     void dodajHaslo(Haslo* haslo);
     void usunHasla();
 };

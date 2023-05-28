@@ -8,51 +8,73 @@ using namespace std;
 void MenadzerHasel::otworzStrumien(string s) {
     plikHasel.open(s);
 }
-
 void MenadzerHasel::zamknijStrumien() {
     plikHasel.close();
 }
-
-void MenadzerHasel::odszyfrujPlik(const string &nazwaPliku, const vector<char> &znaki) {
+void MenadzerHasel::odszyfrujPlik(const string &nazwaPliku) {
     auto testStream = fstream(nazwaPliku, ios::in | ios::out);
-    std::stringstream buffer;
-    buffer << testStream.rdbuf();
-    std::string content = buffer.str();
-    for (std::size_t i = 0; i < content.size(); i++) {
-        if (content[i] == '$' && i < znaki.size()) {
-            content[i] = znaki[i];
-        }
-    }
-
-    testStream.seekp(0);
-    testStream << content;
-    testStream.close();
-
-    std::cout << "odszyfrowano plik." << std::endl;
-}
-
-void MenadzerHasel::zaszyfrujPlik(const string &nazwaPliku) {
-    auto testStream = fstream(nazwaPliku, ios::in | ios::out);
-    vector<char> alphabet = {'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
-    vector<char> znaki;
     stringstream buffer;
     buffer << testStream.rdbuf();
     string content = buffer.str();
-    for (int i = 0; i < alphabet.size(); i++) {
-        for (int j = 0; j < content.size(); j++)
-            if (alphabet[i] == content[j]) {
-                znaki.push_back(content[j]);
-                content[j] = '.' + i;
-            }
-    }
     testStream.seekp(0);
-    testStream << content;
+    for (int i = 0; i < content.size(); i++)
+        if (content[i] == '&')
+            testStream << 'a';
+        else if (content[i] == 'u')
+            testStream << 'e';
+        else if (content[i] == 'a')
+            testStream << 'i';
+        else if (content[i] == 'e')
+            testStream << 'o';
+        else if (content[i] == 'i')
+            testStream << 'u';
+        else if (content[i] == 'o')
+            testStream << 'y';
+        else if (content[i] == '$')
+            testStream << 'j';
+        else if (content[i] == '@')
+            testStream << ' ';
+        else if (content[i] == '#')
+            testStream << ']';
+        else if (content[i] == '*')
+            testStream << '[';
+        else
+            testStream << content[i];
+    testStream.close();
+    cout << "odszyfrowano plik" << endl;
+}
+void MenadzerHasel::zaszyfrujPlik(const string &nazwaPliku) {
+    auto testStream = fstream(nazwaPliku, ios::in | ios::out);
+    stringstream buffer;
+    buffer << testStream.rdbuf();
+    string content = buffer.str();
+    testStream.seekp(0);
+    for (int i = 0; i < content.size(); i++)
+        if (content[i] == 'a')
+            testStream << '&';
+        else if (content[i] == 'e')
+            testStream << 'u';
+        else if (content[i] == 'i')
+            testStream << 'a';
+        else if (content[i] == 'o')
+            testStream << 'e';
+        else if (content[i] == 'u')
+            testStream << 'i';
+        else if (content[i] == 'y')
+            testStream << 'o';
+        else if (content[i] == 'j')
+            testStream << '$';
+        else if (content[i] == ' ')
+            testStream << '@';
+        else if (content[i] == ']')
+            testStream << '#';
+        else if (content[i] == '[')
+            testStream << '*';
+        else
+            testStream << content[i];
     testStream.close();
     cout << "zaszyfrowano plik" << endl;
-    for (auto e : znaki)
-        cout << e << " ";
 }
-
 void MenadzerHasel::dodajHaslo() {
     cout << "Wybierz opcje" << endl;
     cout << "1 - podaj wlasne haslo" << endl;
@@ -99,8 +121,7 @@ void MenadzerHasel::dodajKategorie() {
         cout << e.getNazwa() << endl;
     cout << "Dodano kategorie!" << endl;
 }
-
-void MenadzerHasel::usunKategorie() {
+void MenadzerHasel::usunKategorie() {// dodaj dekonstruktor
     string userInput;
     cout << "Podaj nazwe kategorii, ktora chcesz usunac" << endl;
     for (auto e: wszystkieKategorie)
@@ -117,7 +138,6 @@ void MenadzerHasel::usunKategorie() {
         cout << e.getNazwa() << endl;
     cout << "Usunieto kategorie" << endl;
 }
-
 void MenadzerHasel::posortujHasla() {
     bool stillWork = true;
     int userInput;
@@ -148,7 +168,7 @@ void MenadzerHasel::posortujHasla() {
                 break;
             case 3:
                 stillWork = false;
-                cout << "Powinno sie wylaczyc" << endl;
+                cout << "Tu menu powinno byc" << endl;
                 break;
             default:
                 cout << "Cos poszlo nie tak" << endl;
@@ -158,9 +178,11 @@ void MenadzerHasel::posortujHasla() {
     for (auto e: zapisaneHasla)
         cout << e.getTresc() << endl;
 }
-
 void MenadzerHasel::edytujHaslo() {
     cout << "Wpisz haslo, ktore chesz edytowac" << endl;
+    for (auto e: zapisaneHasla)
+        cout << e.getTresc() << " ";
+    cout << endl;
     bool czyIstnieje = false;
     int index;
     string userPassword;
@@ -215,8 +237,7 @@ void MenadzerHasel::edytujHaslo() {
             break;
     }
 }
-
-void MenadzerHasel::usunHaslo() { //dziala, ma też usuwac haslo z pliku
+void MenadzerHasel::usunHaslo() { //dziala, ma też usuwac haslo z pliku, dodaj dekonstruktor
     if (zapisaneHasla.empty()) {
         cout << "Brak zapisanych hasel" << endl;
     } else {
@@ -236,19 +257,21 @@ void MenadzerHasel::usunHaslo() { //dziala, ma też usuwac haslo z pliku
         }
     }
 }
-
 void MenadzerHasel::wyszukajHasla() {
     cout << "Podaj parametry (nazwa, tresc, kategoria, strona WWW, login)" << endl;
-    string userInput;
+    string userName, userPass, userCat, userSite, userLogin;
     cin.ignore();
-    getline(cin, userInput);
+    getline(cin, userName);
+    getline(cin, userPass);
+    getline(cin, userCat);
+    getline(cin, userSite);
+    getline(cin, userLogin);
     for (auto e: zapisaneHasla) {
-        if (e.getTresc() == userInput || e.getNazwa() == userInput || e.getKategoria()->getNazwa() == userInput ||
-            e.getLogin() == userInput || e.getStronaInternetowa() == userInput)
+        if (e.getTresc() == userPass || e.getNazwa() == userName || e.getKategoria()->getNazwa() == userCat ||
+            e.getLogin() == userLogin || e.getStronaInternetowa() == userSite)
             cout << "Haslo spelniajace conajmniej jeden parametr: " << e.getTresc() << endl;
     }
 }
-
 void MenadzerHasel::wygenerujHaslo() {
     cout << "Podaj dlugosc" << endl;
     int userLength;
@@ -302,8 +325,7 @@ void MenadzerHasel::wygenerujHaslo() {
                     Haslo haslo(passName, password, &e);
                     sprawdzHaslo(haslo);
                     zapisaneHasla.push_back(haslo);
-                    plikHasel << "[" <<haslo.getNazwa() << "]" << " " << "[" << haslo.getTresc() << "]" << " "
-                              << "[" << haslo.getKategoria()->getNazwa() << "]" << endl;
+                    zapiszDoPliku(haslo);
                 }
             }
             if (!czyDodane) {
@@ -313,16 +335,13 @@ void MenadzerHasel::wygenerujHaslo() {
                 sprawdzHaslo(haslo);
                 kategoria.dodajHaslo(&haslo);
                 zapisaneHasla.push_back(haslo);
-                plikHasel << "[" <<haslo.getNazwa() << "]" << " " << "[" << haslo.getTresc() << "]" << " "
-                          << "[" << haslo.getKategoria()->getNazwa() << "]" << endl;
+                zapiszDoPliku(haslo);
             }
             cout << "Haslo dodane" << endl;
             break;
         }
         case 2: {
-            cout
-                    << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej kategorie, potem Strone WWW i na koncu login"
-                    << endl;
+            cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej kategorie, potem Strone WWW i na koncu login"<< endl;
             string passName, categoryName, site, login;
             cin.ignore();
             getline(cin, passName);
@@ -336,8 +355,7 @@ void MenadzerHasel::wygenerujHaslo() {
                     Haslo haslo(passName, password, &e, site, login);
                     sprawdzHaslo(haslo);
                     zapisaneHasla.push_back(haslo);
-                    plikHasel << "[" <<haslo.getNazwa() << "]" << " " << "[" << haslo.getTresc() << "]" << " "
-                              << "[" << haslo.getKategoria()->getNazwa() << "]" << endl;
+                    zapiszWiecejDoPliku(haslo);
                 }
             }
             if (!czyDodane) {
@@ -347,15 +365,13 @@ void MenadzerHasel::wygenerujHaslo() {
                 sprawdzHaslo(haslo);
                 kategoria.dodajHaslo(&haslo);
                 zapisaneHasla.push_back(haslo);
-                plikHasel << "[" <<haslo.getNazwa() << "]" << " " << "[" << haslo.getTresc() << "]" << " "
-                          << "[" << haslo.getKategoria()->getNazwa() << "]" << endl;
+                zapiszWiecejDoPliku(haslo);
             }
             cout << "Haslo dodane" << endl;
             break;
         }
     }
 }
-
 void MenadzerHasel::utworzHasloIKategorie(int a) {
     switch (a) {
         case 2: {
@@ -372,8 +388,7 @@ void MenadzerHasel::utworzHasloIKategorie(int a) {
                     Haslo haslo(passName, pass, &e);
                     sprawdzHaslo(haslo);
                     zapisaneHasla.push_back(haslo);
-                    plikHasel << "[" <<haslo.getNazwa() << "]" << " " << "[" << haslo.getTresc() << "]" << " "
-                              << "[" << haslo.getKategoria()->getNazwa() << "]" << endl;
+                    zapiszDoPliku(haslo);
                 }
             }
             if (!czyDodane) {
@@ -383,8 +398,7 @@ void MenadzerHasel::utworzHasloIKategorie(int a) {
                 sprawdzHaslo(haslo);
                 kategoria.dodajHaslo(&haslo);
                 zapisaneHasla.push_back(haslo);
-                plikHasel << "[" <<haslo.getNazwa() << "]" << " " << "[" << haslo.getTresc() << "]" << " "
-                          << "[" << haslo.getKategoria()->getNazwa() << "]" << endl;
+                zapiszDoPliku(haslo);
             }
             cout << "Haslo dodane" << endl;
             break;
@@ -407,8 +421,7 @@ void MenadzerHasel::utworzHasloIKategorie(int a) {
                     Haslo haslo(passName, pass, &e, site, login);
                     sprawdzHaslo(haslo);
                     zapisaneHasla.push_back(haslo);
-                    plikHasel << "[" <<haslo.getNazwa() << "]" << " " << "[" << haslo.getTresc() << "]" << " "
-                              << "[" << haslo.getKategoria()->getNazwa() << "]" << endl;
+                    zapiszWiecejDoPliku(haslo);
                 }
             }
             if (!czyDodane) {
@@ -418,8 +431,7 @@ void MenadzerHasel::utworzHasloIKategorie(int a) {
                 sprawdzHaslo(haslo);
                 kategoria.dodajHaslo(&haslo);
                 zapisaneHasla.push_back(haslo);
-                plikHasel << "[" <<haslo.getNazwa() << "]" << " " << "[" << haslo.getTresc() << "]" << " "
-                          << "[" << haslo.getKategoria()->getNazwa() << "]" << endl;
+                zapiszWiecejDoPliku(haslo);
             }
             cout << "Haslo dodane" << endl;
             break;
@@ -430,7 +442,6 @@ void MenadzerHasel::utworzHasloIKategorie(int a) {
     }
 
 }
-
 void MenadzerHasel::sprawdzHaslo(const Haslo &haslo) { //dodac sprawdzenie trudnosci hasla (flagi na dlugosc, znaki specjalne)
     string specialCharacters = "!@#$%^&*()-_=+/?.>,<:;~`]}[{";
     string upperLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
@@ -459,4 +470,13 @@ void MenadzerHasel::sprawdzHaslo(const Haslo &haslo) { //dodac sprawdzenie trudn
         cout << "Haslo jest przecietnie" << endl;
     else
         cout << "Haslo jest silne" << endl;
+}
+void MenadzerHasel::zapiszDoPliku(const Haslo &haslo) {
+    plikHasel << "[" <<haslo.getNazwa() << "]" << " " << "[" << haslo.getTresc() << "]" << " "
+              << "[" << haslo.getKategoria()->getNazwa() << "]" << endl;
+}
+void MenadzerHasel::zapiszWiecejDoPliku(const Haslo &haslo) {
+    plikHasel << "[" <<haslo.getNazwa() << "]" << " " << "[" << haslo.getTresc() << "]" << " "
+              << "[" << haslo.getKategoria()->getNazwa() << "]" << " " << "[" << haslo.getStronaInternetowa() << "]"
+              << " " << "[" << haslo.getLogin() << "]" << endl;
 }

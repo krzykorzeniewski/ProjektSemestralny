@@ -16,11 +16,9 @@ private:
     Kategoria* kategoria;
     std::string stronaInternetowa;
     std::string login;
-
 public:
     Haslo(const std::string& nazwa, const std::string& tresc, Kategoria* kategoria);
     Haslo(const std::string& nazwa, const std::string& tresc, Kategoria* kategoria, const std::string& stronaInternetowa, const std::string& login);
-
     const std::string& getNazwa() const;
     void zmienNazweKategorii(const std::string& nazwa);
     void setNazwa(const std::string& nazwa);
@@ -28,7 +26,6 @@ public:
     void setStronaInternetowa(const std::string& stronaInternetowa);
     void setLogin(const std::string& login);
     void setTresc(const std::string& tresc);
-
     const std::string& getTresc() const;
     const Kategoria* getKategoria() const;
     const std::string& getStronaInternetowa() const;

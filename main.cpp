@@ -1,5 +1,4 @@
 #include <iostream>
-#include <vector>
 #include <string>
 #include <filesystem>
 #include "MenadzerHasel.h"
@@ -28,7 +27,6 @@ int main() {
     string userInput;
     cin >> userInput;
     menadzerHasel.otworzStrumien(userInput);
-    vector<char> znaki;
     wyswietlMenu();
 
     int userNumber;
@@ -38,40 +36,49 @@ int main() {
         switch (userNumber) {
             case 1:
                 menadzerHasel.wyszukajHasla();
+                wyswietlMenu();
                 break;
             case 2:
                 menadzerHasel.posortujHasla();
+                wyswietlMenu();
                 break;
             case 3:
                 menadzerHasel.dodajHaslo();
+                wyswietlMenu();
                 break;
             case 4:
                 menadzerHasel.edytujHaslo();
+                wyswietlMenu();
                 break;
             case 5:
                 menadzerHasel.usunHaslo();
+                wyswietlMenu();
                 break;
             case 6:
                 menadzerHasel.dodajKategorie();
+                wyswietlMenu();
                 break;
             case 7:
                 menadzerHasel.usunKategorie();
+                wyswietlMenu();
                 break;
             case 8:
                 menadzerHasel.zaszyfrujPlik(userInput);
+                wyswietlMenu();
                 break;
             case 9:
-                menadzerHasel.odszyfrujPlik(userInput, znaki);
+                menadzerHasel.odszyfrujPlik(userInput);
+                wyswietlMenu();
                 break;
             case 10:
                 stillWork = false;
                 break;
             default:
                 cout << "cos poszlo nie tak - sprobuj ponownie" << endl;
+                wyswietlMenu();
                 break;
         }
     }
-
 
     return 0;
 }

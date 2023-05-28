@@ -23,7 +23,7 @@ private:
 public:
     void otworzStrumien(std::string s);
     void zamknijStrumien();
-    void odszyfrujPlik(const std::string &nazwaPliku, const std::vector<char> &znaki);
+    void odszyfrujPlik(const std::string &nazwaPliku);
     void zaszyfrujPlik(const std::string &nazwaPliku);
     void dodajHaslo();
     void dodajKategorie();
@@ -35,6 +35,8 @@ public:
     void wygenerujHaslo();
     void utworzHasloIKategorie(int a);
     void sprawdzHaslo(const Haslo &haslo);
+    void zapiszDoPliku(const Haslo &haslo);
+    void zapiszWiecejDoPliku(const Haslo &haslo);
 };
 
 
