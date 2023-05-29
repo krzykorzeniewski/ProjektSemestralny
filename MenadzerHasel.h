@@ -16,7 +16,7 @@ class MenadzerHasel {
 private:
     std::vector<Kategoria> wszystkieKategorie;
     std::vector<Haslo> zapisaneHasla;
-    bool autoryzowany;
+    bool zaszyfrowany;
     std::ofstream plikHasel;
     std::string hasloDoPliku;
 

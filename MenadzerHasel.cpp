@@ -1,79 +1,119 @@
 //
 // Created by Krzysiek on 27.05.2023.
 //
-
+#include <ctime>
 #include "MenadzerHasel.h"
 using namespace std;
 
 void MenadzerHasel::otworzStrumien(string s) {
-    plikHasel.open(s);
+    plikHasel.open(s, ios::app);
 }
 void MenadzerHasel::zamknijStrumien() {
     plikHasel.close();
 }
 void MenadzerHasel::odszyfrujPlik(const string &nazwaPliku) {
+    time_t result = time(nullptr);
+    auto currentTime = std::asctime(std::localtime(&result));
     auto testStream = fstream(nazwaPliku, ios::in | ios::out);
-    stringstream buffer;
-    buffer << testStream.rdbuf();
-    string content = buffer.str();
-    testStream.seekp(0);
-    for (int i = 0; i < content.size(); i++)
-        if (content[i] == '&')
-            testStream << 'a';
-        else if (content[i] == 'u')
-            testStream << 'e';
-        else if (content[i] == 'a')
-            testStream << 'i';
-        else if (content[i] == 'e')
-            testStream << 'o';
-        else if (content[i] == 'i')
-            testStream << 'u';
-        else if (content[i] == 'o')
-            testStream << 'y';
-        else if (content[i] == '$')
-            testStream << 'j';
-        else if (content[i] == '@')
-            testStream << ' ';
-        else if (content[i] == '#')
-            testStream << ']';
-        else if (content[i] == '*')
-            testStream << '[';
+    char end = '*';
+    bool autoryzacja = false;
+    string klucz;
+    char temp;
+    string znakiKlucza;
+    while (testStream.get(temp)) {
+        if (temp == end)
+            break;
         else
-            testStream << content[i];
-    testStream.close();
-    cout << "odszyfrowano plik" << endl;
+            znakiKlucza += temp;
+    }
+    cout << "Podaj haslo do pliku" << endl;
+    cin >> klucz;
+    if (klucz == znakiKlucza)
+        autoryzacja = true;
+    if (zaszyfrowany && autoryzacja) {
+        stringstream buffer;
+        buffer << testStream.rdbuf();
+        string content = buffer.str();
+        testStream.seekp(0);
+        testStream << '[';
+        for (int i = 0; i < content.size(); i++)
+            if (content[i] == '&')
+                testStream << 'a';
+            else if (content[i] == 'u')
+                testStream << 'e';
+            else if (content[i] == 'a')
+                testStream << 'i';
+            else if (content[i] == 'e')
+                testStream << 'o';
+            else if (content[i] == 'i')
+                testStream << 'u';
+            else if (content[i] == 'o')
+                testStream << 'y';
+            else if (content[i] == '$')
+                testStream << 'j';
+            else if (content[i] == '@')
+                testStream << ' ';
+            else if (content[i] == '#')
+                testStream << ']';
+            else if (content[i] == '*')
+                testStream << '[';
+            else
+                testStream << content[i];
+        cout << "odszyfrowano plik" << endl;
+        zaszyfrowany = false;
+        vector<string> linie;
+        string hasla;
+    }
+        else
+            cout << "Nie udalo sie odszyfrowac pliku - sprobuj ponownie!" << endl;
+    testStream.seekp(0, ios::end);
+    testStream << currentTime;
 }
 void MenadzerHasel::zaszyfrujPlik(const string &nazwaPliku) {
-    auto testStream = fstream(nazwaPliku, ios::in | ios::out);
-    stringstream buffer;
-    buffer << testStream.rdbuf();
-    string content = buffer.str();
-    testStream.seekp(0);
-    for (int i = 0; i < content.size(); i++)
-        if (content[i] == 'a')
-            testStream << '&';
-        else if (content[i] == 'e')
-            testStream << 'u';
-        else if (content[i] == 'i')
-            testStream << 'a';
-        else if (content[i] == 'o')
-            testStream << 'e';
-        else if (content[i] == 'u')
-            testStream << 'i';
-        else if (content[i] == 'y')
-            testStream << 'o';
-        else if (content[i] == 'j')
-            testStream << '$';
-        else if (content[i] == ' ')
-            testStream << '@';
-        else if (content[i] == ']')
-            testStream << '#';
-        else if (content[i] == '[')
-            testStream << '*';
-        else
-            testStream << content[i];
-    testStream.close();
-    cout << "zaszyfrowano plik" << endl;
+    if (!zaszyfrowany) {
+        auto testStream = fstream(nazwaPliku, ios::in | ios::out);
+        auto pierwszyZnak = testStream.peek();
+        if (pierwszyZnak != '[') {
+            cout << "Plik jest juz zaszyfrowany!" << endl;
+            return;
+        }
+        cout << "Pod jakim haslem zaszyfrowac plik?" << endl;
+        string klucz;
+        cin >> klucz;
+        stringstream buffer;
+        buffer << testStream.rdbuf();
+        string content = buffer.str();
+        testStream.seekp(0);
+        testStream << klucz;
+        for (int i = 0; i < content.size(); i++)
+            if (content[i] == 'a')
+                testStream << '&';
+            else if (content[i] == 'e')
+                testStream << 'u';
+            else if (content[i] == 'i')
+                testStream << 'a';
+            else if (content[i] == 'o')
+                testStream << 'e';
+            else if (content[i] == 'u')
+                testStream << 'i';
+            else if (content[i] == 'y')
+                testStream << 'o';
+            else if (content[i] == 'j')
+                testStream << '$';
+            else if (content[i] == ' ')
+                testStream << '@';
+            else if (content[i] == ']')
+                testStream << '#';
+            else if (content[i] == '[')
+                testStream << '*';
+            else
+                testStream << content[i];
+        testStream.close();
+        cout << "zaszyfrowano plik" << endl;
+        zaszyfrowany = true;
+    }
+    else
+        cout << "Plik jest juz zaszyfrowany!" << endl;
 }
 void MenadzerHasel::dodajHaslo() {
     cout << "Wybierz opcje" << endl;
@@ -313,7 +353,11 @@ void MenadzerHasel::wygenerujHaslo() {
     cin >> number;
     switch (number) {
         case 1: {
-            cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej kategorie" << endl;
+            cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej kategorie" << endl
+             << "Przyklad:" << endl
+             << "Haslo do wifi" << endl
+             << "kategoria - internet"
+             << endl;
             string passName, categoryName;
             cin.ignore();
             getline(cin, passName);
@@ -341,7 +385,13 @@ void MenadzerHasel::wygenerujHaslo() {
             break;
         }
         case 2: {
-            cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej kategorie, potem Strone WWW i na koncu login"<< endl;
+            cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej kategorie, potem Strone WWW i na koncu login"<< endl
+                 << "Przyklad:" << endl
+                 << "Haslo do gmail" << endl
+                 << "kategoria - internet" << endl
+                 << "gmail com" << endl
+                 << "krys.mcrft" << endl
+                 << endl;
             string passName, categoryName, site, login;
             cin.ignore();
             getline(cin, passName);
@@ -375,7 +425,12 @@ void MenadzerHasel::wygenerujHaslo() {
 void MenadzerHasel::utworzHasloIKategorie(int a) {
     switch (a) {
         case 2: {
-            cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej jego tresc, nastepnie kategorie" << endl;
+            cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej jego tresc, nastepnie kategorie" << endl
+            << "Przyklad:" << endl
+            << "Haslo do wifi" << endl
+            << "abcd123" << endl
+            << "kategoria - dom"
+            << endl;
             string passName, pass, categoryName;
             cin.ignore();
             getline(cin, passName);
@@ -405,8 +460,13 @@ void MenadzerHasel::utworzHasloIKategorie(int a) {
         }
         case 4: {
             cout
-                    << "Podaj nazwe pod jaka ma byc zapisane haslo, nastepnie jego tresc, pozniej kategorie, potem Strone WWW i na koncu login"
-                    << endl;
+            << "Podaj nazwe pod jaka ma byc zapisane haslo, nastepnie jego tresc, pozniej kategorie, potem Strone WWW i na koncu login" << endl
+            << "Przyklad:" << endl
+            << "Haslo do wifi" << endl
+            << "haslo1" << endl
+            << "kategoria internet" << endl
+            << "gmail com" << endl
+            << "login"<< endl;
             string passName, pass, categoryName, site, login;
             cin.ignore();
             getline(cin, passName);
