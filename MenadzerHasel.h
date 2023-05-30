@@ -30,7 +30,7 @@ public:
     void usunKategorie();
     void posortujHasla();
     void edytujHaslo();
-    void usunHaslo();
+    void usunHaslo(const std::string &nazwaPliku);
     void wyszukajHasla();
     void wygenerujHaslo();
     void utworzHasloIKategorie(int a);

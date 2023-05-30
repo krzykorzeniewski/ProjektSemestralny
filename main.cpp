@@ -51,7 +51,7 @@ int main() {
                 wyswietlMenu();
                 break;
             case 5:
-                menadzerHasel.usunHaslo();
+                menadzerHasel.usunHaslo(userInput);
                 wyswietlMenu();
                 break;
             case 6:
