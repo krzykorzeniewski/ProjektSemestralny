@@ -20,9 +20,13 @@ void wyswietlMenu() {
 int main() {
     MenadzerHasel menadzerHasel;
     bool stillWork = true;
-    string path = "C:\\Users\\Krzysiek\\CLionProjects\\ProjektSemestralny\\cmake-build-debug";
-    for (const auto &entry : filesystem::directory_iterator(path))
-        cout << entry.path() << endl;
+    auto path = filesystem::current_path();
+    if (filesystem::is_directory(path)) {
+        auto dir = filesystem::recursive_directory_iterator(path);
+            for (auto e : dir)
+                if (e.path().extension() == ".txt")
+                    cout << e.path().filename() << endl;
+    }
     cout << "Podaj sciezke do pliku lub nazwe nowego pliku" << endl;
     string userInput;
     cin >> userInput;

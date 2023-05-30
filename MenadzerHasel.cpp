@@ -27,7 +27,7 @@ void MenadzerHasel::odszyfrujPlik(const string &nazwaPliku) {
     time_t result = time(nullptr);
     auto currentTime = std::asctime(std::localtime(&result));
     auto testStream = fstream(nazwaPliku, ios::in | ios::out);
-    char end = '*';
+    char end = '.';
     bool autoryzacja = false;
     string klucz;
     char temp;
@@ -47,7 +47,6 @@ void MenadzerHasel::odszyfrujPlik(const string &nazwaPliku) {
         buffer << testStream.rdbuf();
         string content = buffer.str();
         testStream.seekp(0);
-        testStream << '[';
         for (int i = 0; i < content.size(); i++)
             if (content[i] == '&')
                 testStream << 'a';
@@ -72,7 +71,7 @@ void MenadzerHasel::odszyfrujPlik(const string &nazwaPliku) {
             else
                 testStream << content[i];
         cout << "odszyfrowano plik" << endl;
-        testStream.seekp(testStream.tellp());
+        testStream.seekp(0, ios_base::cur);
         testStream << currentTime;
         testStream.close();
         zaszyfrowany = false;
@@ -80,8 +79,33 @@ void MenadzerHasel::odszyfrujPlik(const string &nazwaPliku) {
         else {
             cout << "Nie udalo sie odszyfrowac pliku - sprobuj ponownie!" << endl;
             testStream.seekp(0, ios::end);
-            testStream << currentTime;
-            testStream.close();
+                stringstream buffer;
+                buffer << currentTime;
+                string content = buffer.str();
+                for (int i = 0; i < content.size(); i++)
+                    if (content[i] == 'a')
+                        testStream << '&';
+                    else if (content[i] == 'e')
+                        testStream << 'u';
+                    else if (content[i] == 'i')
+                        testStream << 'a';
+                    else if (content[i] == 'o')
+                        testStream << 'e';
+                    else if (content[i] == 'u')
+                        testStream << 'i';
+                    else if (content[i] == 'y')
+                        testStream << 'o';
+                    else if (content[i] == 'j')
+                        testStream << '$';
+                    else if (content[i] == ' ')
+                        testStream << '@';
+                    else if (content[i] == ']')
+                        testStream << '#';
+                    else if (content[i] == '[')
+                        testStream << '*';
+                    else
+                        testStream << content[i];
+                testStream.close();
     }
 }
 /**
@@ -104,6 +128,7 @@ void MenadzerHasel::zaszyfrujPlik(const string &nazwaPliku) {
         string content = buffer.str();
         testStream.seekp(0);
         testStream << klucz;
+        testStream << '.';
         for (int i = 0; i < content.size(); i++)
             if (content[i] == 'a')
                 testStream << '&';
@@ -138,38 +163,42 @@ void MenadzerHasel::zaszyfrujPlik(const string &nazwaPliku) {
  * @brief Tworzy nowe haslo zgodne z poleceniami uzytkownika.
  */
 void MenadzerHasel::dodajHaslo() {
-    cout << "Wybierz opcje" << endl;
-    cout << "1 - podaj wlasne haslo" << endl;
-    cout << "2 - wygeneruj haslo" << endl;
-    int userInput;
-    cin >> userInput;
-    switch (userInput) {
-        case 1: {
-            cout << "Wybierz opcje" << endl;
-            cout << "1 - haslo z dwoma parametrami" << endl;
-            cout << "2 - haslo z czterema parametrami" << endl;
-            int number;
-            cin >> number;
-            switch (number) {
-                case 1: {
-                    utworzHasloIKategorie(2);
-                    break;
+    if (!zaszyfrowany) {
+        cout << "Wybierz opcje" << endl;
+        cout << "1 - podaj wlasne haslo" << endl;
+        cout << "2 - wygeneruj haslo" << endl;
+        int userInput;
+        cin >> userInput;
+        switch (userInput) {
+            case 1: {
+                cout << "Wybierz opcje" << endl;
+                cout << "1 - haslo z dwoma parametrami" << endl;
+                cout << "2 - haslo z czterema parametrami" << endl;
+                int number;
+                cin >> number;
+                switch (number) {
+                    case 1: {
+                        utworzHasloIKategorie(2);
+                        break;
+                    }
+                    case 2: {
+                        utworzHasloIKategorie(4);
+                        break;
+                    }
                 }
-                case 2: {
-                    utworzHasloIKategorie(4);
-                    break;
-                }
+                break;
             }
-            break;
+            case 2: {
+                wygenerujHaslo();
+                break;
+            }
+            default:
+                cout << "Cos poszlo nie tak - sprobuj ponownie!" << endl;
+                break;
         }
-        case 2: {
-            wygenerujHaslo();
-            break;
-        }
-        default:
-            cout << "Cos poszlo nie tak - sprobuj ponownie!" << endl;
-            break;
     }
+        else
+            cout << "Nie mozna dodac hasla - odszyfruj plik" << endl;
 }
 /**
  * @brief Tworzy nowa kategorie.
@@ -189,21 +218,25 @@ void MenadzerHasel::dodajKategorie() {
  * @brief Usuwa kategorie wskazana przez uzytkownika.
  */
 void MenadzerHasel::usunKategorie() {// dodaj dekonstruktor
-    string userInput;
-    cout << "Podaj nazwe kategorii, ktora chcesz usunac" << endl;
-    for (auto e: wszystkieKategorie)
-        cout << e.getNazwa() << endl;
-    cin >> userInput;
-    for (auto &e: wszystkieKategorie)
-        if (userInput == e.getNazwa())
-            e.usunHasla();
-    auto range = std::ranges::remove_if(wszystkieKategorie, [&userInput](Kategoria kategoria) -> bool {
-        return kategoria.getNazwa() == userInput;
-    });
-    wszystkieKategorie.erase(range.begin(), range.end());
-    for (auto e: wszystkieKategorie)
-        cout << e.getNazwa() << endl;
-    cout << "Usunieto kategorie" << endl;
+    if (!wszystkieKategorie.empty()) {
+        string userInput;
+        cout << "Podaj nazwe kategorii, ktora chcesz usunac" << endl;
+        for (auto e: wszystkieKategorie)
+            cout << e.getNazwa() << endl;
+        cin >> userInput;
+        for (auto &e: wszystkieKategorie)
+            if (userInput == e.getNazwa())
+                e.usunHasla();
+        auto range = std::ranges::remove_if(wszystkieKategorie, [&userInput](Kategoria kategoria) -> bool {
+            return kategoria.getNazwa() == userInput;
+        });
+        wszystkieKategorie.erase(range.begin(), range.end());
+        for (auto e: wszystkieKategorie)
+            cout << e.getNazwa() << endl;
+        cout << "Usunieto kategorie" << endl;
+    }
+        else
+            cout << "Lista kategorii jest pusta!" << endl;
 }
 /**
  * @brief Sortuje hasla zgodnie z poleceniem uzytkownika.
@@ -252,63 +285,67 @@ void MenadzerHasel::posortujHasla() {
  * @brief Edytuje haslo wskazane przez uzytkownika.
  */
 void MenadzerHasel::edytujHaslo() {
-    cout << "Wpisz haslo, ktore chesz edytowac" << endl;
-    for (auto e: zapisaneHasla)
-        cout << e.getTresc() << " ";
-    cout << endl;
-    bool czyIstnieje = false;
-    int index;
-    string userPassword;
-    string userChange;
-    int userNumber;
-    cin >> userPassword;
+    if (!zapisaneHasla.empty()) {
+        cout << "Wpisz haslo, ktore chesz edytowac" << endl;
+        for (auto e: zapisaneHasla)
+            cout << e.getTresc() << " ";
+        cout << endl;
+        bool czyIstnieje = false;
+        int index;
+        string userPassword;
+        string userChange;
+        int userNumber;
+        cin >> userPassword;
 
-    for (int i = 0; i < zapisaneHasla.size(); i++) {
-        if (userPassword == zapisaneHasla.at(i).getTresc()) {
-            index = i;
-            czyIstnieje = true;
+        for (int i = 0; i < zapisaneHasla.size(); i++) {
+            if (userPassword == zapisaneHasla.at(i).getTresc()) {
+                index = i;
+                czyIstnieje = true;
+            }
+        }
+
+        cout << "Wybierz co, chcesz edytowac" << endl;
+        cout << "1 - nazwa hasla" << endl;
+        cout << "2 - tresc hasla" << endl;
+        cout << "3 - kategoria" << endl;
+
+        cin >> userNumber;
+
+        switch (userNumber) {
+            case 1: {
+                if (czyIstnieje) {
+                    cout << "Podaj nowa nazwe hasla" << endl;
+                    cin >> userChange;
+                    zapisaneHasla.at(index).setNazwa(userChange);
+                } else
+                    cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
+                break;
+            }
+            case 2: {
+                if (czyIstnieje) {
+                    cout << "Podaj nowa tresc hasla" << endl;
+                    cin >> userChange;
+                    zapisaneHasla.at(index).setTresc(userChange);
+                } else
+                    cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
+                break;
+            }
+            case 3: {
+                if (czyIstnieje) {
+                    cout << "Podaj nowa kategorie hasla" << endl;
+                    cin >> userChange;
+                    zapisaneHasla.at(index).zmienNazweKategorii(userChange);
+                } else
+                    cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
+                break;
+            }
+            default:
+                cout << "cos poszlo nie tak" << endl;
+                break;
         }
     }
-
-    cout << "Wybierz co, chcesz edytowac" << endl;
-    cout << "1 - nazwa hasla" << endl;
-    cout << "2 - tresc hasla" << endl;
-    cout << "3 - kategoria" << endl;
-
-    cin >> userNumber;
-
-    switch (userNumber) {
-        case 1: {
-            if (czyIstnieje) {
-                cout << "Podaj nowa nazwe hasla" << endl;
-                cin >> userChange;
-                zapisaneHasla.at(index).setNazwa(userChange);
-            } else
-                cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
-            break;
-        }
-        case 2: {
-            if (czyIstnieje) {
-                cout << "Podaj nowa tresc hasla" << endl;
-                cin >> userChange;
-                zapisaneHasla.at(index).setTresc(userChange);
-            } else
-                cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
-            break;
-        }
-        case 3: {
-            if (czyIstnieje) {
-                cout << "Podaj nowa kategorie hasla" << endl;
-                cin >> userChange;
-                zapisaneHasla.at(index).zmienNazweKategorii(userChange);
-            } else
-                cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
-            break;
-        }
-        default:
-            cout << "cos poszlo nie tak" << endl;
-            break;
-    }
+    else
+        cout << "Lista hasel jest pusta!" << endl;
 }
 /**
  * @brief Usuwa haslo wskazane przez uzytkownika.
@@ -409,7 +446,7 @@ void MenadzerHasel::wygenerujHaslo() {
             sprawdzHaslo(haslo);
             kategoriaPtr->dodajHaslo(&haslo);
             zapisaneHasla.push_back(haslo);
-            zapiszWiecejDoPliku(haslo);
+            zapiszDoPliku(haslo);
 
             cout << "Haslo dodane" << endl;
             break;
@@ -436,7 +473,7 @@ void MenadzerHasel::wygenerujHaslo() {
             sprawdzHaslo(haslo);
             kategoriaPtr->dodajHaslo(&haslo);
             zapisaneHasla.push_back(haslo);
-            zapiszWiecejDoPliku(haslo);
+            zapiszDoPliku(haslo);
 
             cout << "Haslo dodane" << endl;
             break;
@@ -505,7 +542,7 @@ void MenadzerHasel::utworzHasloIKategorie(int a) {
     sprawdzHaslo(haslo);
     kategoriaPtr->dodajHaslo(&haslo);
     zapisaneHasla.push_back(haslo);
-    zapiszWiecejDoPliku(haslo);
+    zapiszDoPliku(haslo);
 
     cout << "Haslo dodane" << endl;
 }
@@ -546,7 +583,7 @@ void MenadzerHasel::sprawdzHaslo(const Haslo &haslo) {
  * @brief Zapisuje informacje o haśle do pliku.
  * @param haslo Referencja do obiektu Haslo, którego informacje mają zostać zapisane.
  */
-void MenadzerHasel::zapiszWiecejDoPliku(const Haslo &haslo) {
+void MenadzerHasel::zapiszDoPliku(const Haslo &haslo) {
     plikHasel << "[" <<haslo.getNazwa() << "]" << " " << "[" << haslo.getTresc() << "]" << " "
               << "[" << haslo.getKategoria()->getNazwa() << "]" << " " << "[" << haslo.getStronaInternetowa() << "]"
               << " " << "[" << haslo.getLogin() << "]" << endl;
