@@ -35,8 +35,8 @@ public:
     void wygenerujHaslo();
     void utworzHasloIKategorie(int a);
     void sprawdzHaslo(const Haslo &haslo);
-    void zapiszDoPliku(const Haslo &haslo);
     void zapiszWiecejDoPliku(const Haslo &haslo);
+    Kategoria* znajdzKategorie(const string &nazwa);
 };
 
 

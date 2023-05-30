@@ -313,30 +313,23 @@ void MenadzerHasel::wyszukajHasla() {
     }
 }
 void MenadzerHasel::wygenerujHaslo() {
-    cout << "Podaj dlugosc" << endl;
     int userLength;
+    cout << "Podaj dlugosc: " << endl;
     cin >> userLength;
-    cout << "Czy haslo ma zawierac znaki specjalne (tak lub nie)" << endl;
-    string userInput;
+
+    string userInput, userInput1;
+    cout << "Czy haslo ma zawierac znaki specjalne? (tak lub nie): " << endl;
     cin >> userInput;
-    cout << "Czy haslo ma zawierac zarowno male i duze litery? (tak lub nie)" << endl;
-    string userInput1;
+    cout << "Czy haslo ma zawierac zarowno male i duze litery? (tak lub nie): " << endl;
     cin >> userInput1;
+
     string characters = "abcdefghijklmnopqrstuvwxyz";
     string password = "";
-    int passLength = 0;
-    bool uppercase = false;
-    bool special = false;
-    passLength = userLength;
+    int passLength = userLength;
 
     if (userInput == "tak")
-        special = true;
-    if (userInput1 == "tak")
-        uppercase = true;
-
-    if (special)
         characters += "!@#$%^&*()-_=+/?.>,<:;~`]}[{";
-    if (uppercase)
+    if (userInput1 == "tak")
         characters += "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
 
     for (int i = 0; i < passLength; i++) {
@@ -346,163 +339,126 @@ void MenadzerHasel::wygenerujHaslo() {
 
     cout << "Wygenerowane haslo: " << password << endl;
 
-    cout << "Wybierz opcje" << endl;
+    cout << "Wybierz opcje:" << endl;
     cout << "1 - haslo z dwoma parametrami" << endl;
     cout << "2 - haslo z czterema parametrami" << endl;
     int number;
     cin >> number;
+
+    string passName, categoryName, site, login;
     switch (number) {
         case 1: {
-            cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej kategorie" << endl
-             << "Przyklad:" << endl
-             << "Haslo do wifi" << endl
-             << "kategoria - internet"
-             << endl;
-            string passName, categoryName;
             cin.ignore();
+            cout << "Podaj nazwe pod jaka ma byc zapisane haslo: " << endl;
             getline(cin, passName);
+            cout << "Podaj kategorie: " << endl;
             getline(cin, categoryName);
-            bool czyDodane = false;
-            for (auto e: wszystkieKategorie) {
-                if (e.getNazwa() == categoryName) {
-                    czyDodane = true;
-                    Haslo haslo(passName, password, &e);
-                    sprawdzHaslo(haslo);
-                    zapisaneHasla.push_back(haslo);
-                    zapiszDoPliku(haslo);
-                }
-            }
-            if (!czyDodane) {
+
+            Kategoria *kategoriaPtr = znajdzKategorie(categoryName);
+            if (kategoriaPtr == nullptr) {
                 Kategoria kategoria(categoryName);
                 wszystkieKategorie.push_back(kategoria);
-                Haslo haslo(passName, password, &kategoria);
-                sprawdzHaslo(haslo);
-                kategoria.dodajHaslo(&haslo);
-                zapisaneHasla.push_back(haslo);
-                zapiszDoPliku(haslo);
+                kategoriaPtr = &wszystkieKategorie.back();
             }
+
+            Haslo haslo(passName, password, kategoriaPtr);
+            sprawdzHaslo(haslo);
+            kategoriaPtr->dodajHaslo(&haslo);
+            zapisaneHasla.push_back(haslo);
+            zapiszWiecejDoPliku(haslo);
+
             cout << "Haslo dodane" << endl;
             break;
         }
         case 2: {
-            cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej kategorie, potem Strone WWW i na koncu login"<< endl
-                 << "Przyklad:" << endl
-                 << "Haslo do gmail" << endl
-                 << "kategoria - internet" << endl
-                 << "gmail com" << endl
-                 << "krys.mcrft" << endl
-                 << endl;
-            string passName, categoryName, site, login;
             cin.ignore();
+            cout << "Podaj nazwe pod jaka ma byc zapisane haslo: " << endl;
             getline(cin, passName);
+            cout << "Podaj kategorie: " << endl;
             getline(cin, categoryName);
+            cout <<  "Podaj strone internetowa: " << endl;
             getline(cin, site);
+            cout << "Podaj login: " << endl;
             getline(cin, login);
-            bool czyDodane = false;
-            for (auto e: wszystkieKategorie) {
-                if (e.getNazwa() == categoryName) {
-                    czyDodane = true;
-                    Haslo haslo(passName, password, &e, site, login);
-                    sprawdzHaslo(haslo);
-                    zapisaneHasla.push_back(haslo);
-                    zapiszWiecejDoPliku(haslo);
-                }
-            }
-            if (!czyDodane) {
+
+            Kategoria *kategoriaPtr = znajdzKategorie(categoryName);
+            if (kategoriaPtr == nullptr) {
                 Kategoria kategoria(categoryName);
                 wszystkieKategorie.push_back(kategoria);
-                Haslo haslo(passName, password, &kategoria, site, login);
-                sprawdzHaslo(haslo);
-                kategoria.dodajHaslo(&haslo);
-                zapisaneHasla.push_back(haslo);
-                zapiszWiecejDoPliku(haslo);
+                kategoriaPtr = &wszystkieKategorie.back();
             }
-            cout << "Haslo dodane" << endl;
-            break;
-        }
-    }
-}
-void MenadzerHasel::utworzHasloIKategorie(int a) {
-    switch (a) {
-        case 2: {
-            cout << "Podaj nazwe pod jaka ma byc zapisane haslo, pozniej jego tresc, nastepnie kategorie" << endl
-            << "Przyklad:" << endl
-            << "Haslo do wifi" << endl
-            << "abcd123" << endl
-            << "kategoria - dom"
-            << endl;
-            string passName, pass, categoryName;
-            cin.ignore();
-            getline(cin, passName);
-            getline(cin, pass);
-            getline(cin, categoryName);
-            bool czyDodane = false;
-            for (auto e: wszystkieKategorie) {
-                if (e.getNazwa() == categoryName) {
-                    czyDodane = true;
-                    Haslo haslo(passName, pass, &e);
-                    sprawdzHaslo(haslo);
-                    zapisaneHasla.push_back(haslo);
-                    zapiszDoPliku(haslo);
-                }
-            }
-            if (!czyDodane) {
-                Kategoria kategoria(categoryName);
-                wszystkieKategorie.push_back(kategoria);
-                Haslo haslo(passName, pass, &kategoria);
-                sprawdzHaslo(haslo);
-                kategoria.dodajHaslo(&haslo);
-                zapisaneHasla.push_back(haslo);
-                zapiszDoPliku(haslo);
-            }
-            cout << "Haslo dodane" << endl;
-            break;
-        }
-        case 4: {
-            cout
-            << "Podaj nazwe pod jaka ma byc zapisane haslo, nastepnie jego tresc, pozniej kategorie, potem Strone WWW i na koncu login" << endl
-            << "Przyklad:" << endl
-            << "Haslo do wifi" << endl
-            << "haslo1" << endl
-            << "kategoria internet" << endl
-            << "gmail com" << endl
-            << "login"<< endl;
-            string passName, pass, categoryName, site, login;
-            cin.ignore();
-            getline(cin, passName);
-            getline(cin, pass);
-            getline(cin, categoryName);
-            getline(cin, site);
-            getline(cin, login);
-            bool czyDodane = false;
-            for (auto e: wszystkieKategorie) {
-                if (e.getNazwa() == categoryName) {
-                    czyDodane = true;
-                    Haslo haslo(passName, pass, &e, site, login);
-                    sprawdzHaslo(haslo);
-                    zapisaneHasla.push_back(haslo);
-                    zapiszWiecejDoPliku(haslo);
-                }
-            }
-            if (!czyDodane) {
-                Kategoria kategoria(categoryName);
-                wszystkieKategorie.push_back(kategoria);
-                Haslo haslo(passName, pass, &kategoria, site, login);
-                sprawdzHaslo(haslo);
-                kategoria.dodajHaslo(&haslo);
-                zapisaneHasla.push_back(haslo);
-                zapiszWiecejDoPliku(haslo);
-            }
+
+            Haslo haslo(passName, password, kategoriaPtr, site, login);
+            sprawdzHaslo(haslo);
+            kategoriaPtr->dodajHaslo(&haslo);
+            zapisaneHasla.push_back(haslo);
+            zapiszWiecejDoPliku(haslo);
+
             cout << "Haslo dodane" << endl;
             break;
         }
         default:
-            cout << "cos poszlo nie tak" << endl;
+            cout << "Podales zla opcje - sprobuj ponownie!" << endl;
             break;
     }
-
 }
-void MenadzerHasel::sprawdzHaslo(const Haslo &haslo) { //dodac sprawdzenie trudnosci hasla (flagi na dlugosc, znaki specjalne)
+
+Kategoria* MenadzerHasel::znajdzKategorie(const string& nazwa) {
+    for (auto& kategoria : wszystkieKategorie) {
+        if (kategoria.getNazwa() == nazwa) {
+            return &kategoria;
+        }
+    }
+    return nullptr;
+}
+void MenadzerHasel::utworzHasloIKategorie(int a) {
+    string passName, pass, categoryName, site, login;
+
+    switch (a) {
+        case 2:
+            cin.ignore();
+            cout << "Podaj nazwe pod jaka ma byc zapisane haslo: " << endl;
+            getline(cin, passName);
+            cout << "Podaj tresc hasla: "<< endl;
+            getline(cin, pass);
+            cout << "Podaj kategorie: "<< endl;
+            getline(cin, categoryName);
+            break;
+        case 4:
+            cin.ignore();
+            cout << "Podaj nazwe pod jaka ma byc zapisane haslo: " << endl;
+            getline(cin, passName);
+            cout << "Podaj tresc hasla: "<< endl;
+            getline(cin, pass);
+            cout << "Podaj kategorie: " << endl;
+            getline(cin, categoryName);
+            cout << "Podaj strone WWW: " << endl;
+            getline(cin, site);
+            cout << "Podaj login: "<< endl;
+            getline(cin, login);
+            break;
+        default:
+            cout << "Nieprawidlowa opcja" << endl;
+            return;
+    }
+
+    Kategoria* kategoriaPtr = znajdzKategorie(categoryName);
+    if (kategoriaPtr == nullptr) {
+        Kategoria kategoria(categoryName);
+        wszystkieKategorie.push_back(kategoria);
+        kategoriaPtr = &wszystkieKategorie.back();
+    }
+
+    Haslo haslo(passName, pass, kategoriaPtr, site, login);
+    sprawdzHaslo(haslo);
+    kategoriaPtr->dodajHaslo(&haslo);
+    zapisaneHasla.push_back(haslo);
+    zapiszWiecejDoPliku(haslo);
+
+    cout << "Haslo dodane" << endl;
+}
+
+void MenadzerHasel::sprawdzHaslo(const Haslo &haslo) {
     string specialCharacters = "!@#$%^&*()-_=+/?.>,<:;~`]}[{";
     string upperLetters = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
     int poziomTrudnosci = 0;
@@ -530,10 +486,6 @@ void MenadzerHasel::sprawdzHaslo(const Haslo &haslo) { //dodac sprawdzenie trudn
         cout << "Haslo jest przecietnie" << endl;
     else
         cout << "Haslo jest silne" << endl;
-}
-void MenadzerHasel::zapiszDoPliku(const Haslo &haslo) {
-    plikHasel << "[" <<haslo.getNazwa() << "]" << " " << "[" << haslo.getTresc() << "]" << " "
-              << "[" << haslo.getKategoria()->getNazwa() << "]" << endl;
 }
 void MenadzerHasel::zapiszWiecejDoPliku(const Haslo &haslo) {
     plikHasel << "[" <<haslo.getNazwa() << "]" << " " << "[" << haslo.getTresc() << "]" << " "
