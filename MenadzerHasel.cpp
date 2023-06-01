@@ -13,12 +13,14 @@ using namespace std;
 void MenadzerHasel::otworzStrumien(string s) {
     plikHasel.open(s, ios::app);
 }
+
 /**
  * @brief Zamyka strumien do zapisu.
  */
 void MenadzerHasel::zamknijStrumien() {
     plikHasel.close();
 }
+
 /**
  * @brief Odszyfrowuje wskazany plik oraz zapisuje timestamp kazdej proby odszyfrowania.
  * @param nazwaPliku Nazwa pliku do odszyfrowania.
@@ -108,18 +110,14 @@ void MenadzerHasel::odszyfrujPlik(const string &nazwaPliku) {
                 testStream.close();
     }
 }
+
 /**
  * @brief Zaszyfrowuje wskazany plik haslem pobranym od uzytkownika.
  * @param nazwaPliku Nazwa pliku, ktory powinien zostac zaszyfrowany.
  */
 void MenadzerHasel::zaszyfrujPlik(const string &nazwaPliku) {
+    auto testStream = fstream(nazwaPliku, ios::in | ios::out);
     if (!zaszyfrowany) {
-        auto testStream = fstream(nazwaPliku, ios::in | ios::out);
-        auto pierwszyZnak = testStream.peek();
-        if (pierwszyZnak != '[') {
-            cout << "Plik jest juz zaszyfrowany!" << endl;
-            return;
-        }
         cout << "Pod jakim haslem zaszyfrowac plik?" << endl;
         string klucz;
         cin >> klucz;
@@ -159,6 +157,7 @@ void MenadzerHasel::zaszyfrujPlik(const string &nazwaPliku) {
     else
         cout << "Plik jest juz zaszyfrowany!" << endl;
 }
+
 /**
  * @brief Tworzy nowe haslo zgodne z poleceniami uzytkownika.
  */
@@ -171,9 +170,9 @@ void MenadzerHasel::dodajHaslo() {
         cin >> userInput;
         switch (userInput) {
             case 1: {
-                cout << "Wybierz opcje" << endl;
-                cout << "1 - haslo z dwoma parametrami" << endl;
-                cout << "2 - haslo z czterema parametrami" << endl;
+                cout << "Jak chcesz zapisac haslo?" << endl;
+                cout << "1 - nazwa hasla, tresc oraz kategoria" << endl;
+                cout << "2 - nazwa hasla, tresc, kategoria, strona WWW oraz login" << endl;
                 int number;
                 cin >> number;
                 switch (number) {
@@ -200,6 +199,7 @@ void MenadzerHasel::dodajHaslo() {
         else
             cout << "Nie mozna dodac hasla - odszyfruj plik" << endl;
 }
+
 /**
  * @brief Tworzy nowa kategorie.
  */
@@ -214,19 +214,22 @@ void MenadzerHasel::dodajKategorie() {
         cout << e.getNazwa() << endl;
     cout << "Dodano kategorie!" << endl;
 }
+
 /**
  * @brief Usuwa kategorie wskazana przez uzytkownika.
  */
-void MenadzerHasel::usunKategorie() {// dodaj dekonstruktor
+void MenadzerHasel::usunKategorie() {
     if (!wszystkieKategorie.empty()) {
         string userInput;
         cout << "Podaj nazwe kategorii, ktora chcesz usunac" << endl;
         for (auto e: wszystkieKategorie)
             cout << e.getNazwa() << endl;
-        cin >> userInput;
-        for (auto &e: wszystkieKategorie)
-            if (userInput == e.getNazwa())
+        cin.ignore();
+        getline(cin, userInput);
+        for (auto e: wszystkieKategorie)
+            if (userInput == e.getNazwa()) {
                 e.usunHasla();
+            }
         auto range = std::ranges::remove_if(wszystkieKategorie, [&userInput](Kategoria kategoria) -> bool {
             return kategoria.getNazwa() == userInput;
         });
@@ -234,10 +237,12 @@ void MenadzerHasel::usunKategorie() {// dodaj dekonstruktor
         for (auto e: wszystkieKategorie)
             cout << e.getNazwa() << endl;
         cout << "Usunieto kategorie" << endl;
+    } else {
+        cout << "Lista kategorii jest pusta!" << endl;
+        return;
     }
-        else
-            cout << "Lista kategorii jest pusta!" << endl;
 }
+
 /**
  * @brief Sortuje hasla zgodnie z poleceniem uzytkownika.
  */
@@ -281,6 +286,7 @@ void MenadzerHasel::posortujHasla() {
     for (auto e: zapisaneHasla)
         cout << e.getTresc() << endl;
 }
+
 /**
  * @brief Edytuje haslo wskazane przez uzytkownika.
  */
@@ -304,7 +310,7 @@ void MenadzerHasel::edytujHaslo() {
             }
         }
 
-        cout << "Wybierz co, chcesz edytowac" << endl;
+        cout << "Wybierz co chcesz edytowac" << endl;
         cout << "1 - nazwa hasla" << endl;
         cout << "2 - tresc hasla" << endl;
         cout << "3 - kategoria" << endl;
@@ -347,12 +353,12 @@ void MenadzerHasel::edytujHaslo() {
     else
         cout << "Lista hasel jest pusta!" << endl;
 }
+
 /**
  * @brief Usuwa haslo wskazane przez uzytkownika.
- * @param nazwaPliku plik, z ktorego ma zostać usunięte haslo
  */
-void MenadzerHasel::usunHaslo(const string& nazwaPliku) { //dziala, ma też usuwac haslo z pliku, dodaj dekonstruktor
-    auto stream = fstream (nazwaPliku, ios::in | ios::out);
+void MenadzerHasel::usunHaslo() {
+    int counter = 0;
     if (zapisaneHasla.empty()) {
         cout << "Brak zapisanych hasel" << endl;
     } else {
@@ -362,16 +368,26 @@ void MenadzerHasel::usunHaslo(const string& nazwaPliku) { //dziala, ma też usuw
             cout << e.getTresc() << endl;
         }
         cin >> usserPasswd;
+        for (auto haslo : zapisaneHasla) {
+            if (haslo.getTresc() == usserPasswd) {
+                counter++;
+                haslo.getKategoria()->usunHaslo(&haslo);
+            }
+        }
         auto range = std::ranges::remove_if(zapisaneHasla, [&usserPasswd](Haslo haslo) -> bool {
             return haslo.getTresc() == usserPasswd;
         });
         zapisaneHasla.erase(range.begin(), range.end());
-        cout << "Haslo usuniete!" << endl;
+        if (counter == 0)
+            cout << "Haslo usuniete!" << endl;
+        else
+            cout << "Usunieto " << counter << " hasla/hasel!" << endl;
         for (auto e: zapisaneHasla) {
             cout << e.getTresc() << endl;
         }
     }
 }
+
 /**
  * @brief Szuka hasel pasujacych do parametrow podanych przez uzytkownika.
  */
@@ -390,6 +406,7 @@ void MenadzerHasel::wyszukajHasla() {
             cout << "Haslo spelniajace conajmniej jeden parametr: " << e.getTresc() << endl;
     }
 }
+
 /**
  * @brief Generuje losowe haslo w zaleznosci od polecen uzytkownika.
  */
@@ -420,9 +437,9 @@ void MenadzerHasel::wygenerujHaslo() {
 
     cout << "Wygenerowane haslo: " << password << endl;
 
-    cout << "Wybierz opcje:" << endl;
-    cout << "1 - haslo z dwoma parametrami" << endl;
-    cout << "2 - haslo z czterema parametrami" << endl;
+    cout << "Jak chcesz zapisac haslo?" << endl;
+    cout << "1 - nazwa hasla i kategoria" << endl;
+    cout << "2 - nazwa hasla, kategoria, strona WWW oraz login" << endl;
     int number;
     cin >> number;
 
@@ -483,6 +500,7 @@ void MenadzerHasel::wygenerujHaslo() {
             break;
     }
 }
+
 /**
  * @brief Znajduje kategorię o podanej nazwie.
  * @param nazwa Nazwa kategorii do wyszukania.
@@ -496,6 +514,7 @@ Kategoria* MenadzerHasel::znajdzKategorie(const string& nazwa) {
     }
     return nullptr;
 }
+
 /**
  * @brief Tworzy nowe hasło i przypisuje je do kategorii.
  * @param a Wybrana opcja (2 - hasło podstawowe, 4 - hasło z dodatkowymi informacjami).
@@ -543,9 +562,9 @@ void MenadzerHasel::utworzHasloIKategorie(int a) {
     kategoriaPtr->dodajHaslo(&haslo);
     zapisaneHasla.push_back(haslo);
     zapiszDoPliku(haslo);
-
     cout << "Haslo dodane" << endl;
 }
+
 /**
  * @brief Sprawdza siłę hasła i wyświetla odpowiedni komunikat oraz czy haslo nie zostalo wczesniej uzyte.
  * @param haslo Referencja do obiektu Haslo, które ma zostać sprawdzone.
@@ -579,6 +598,7 @@ void MenadzerHasel::sprawdzHaslo(const Haslo &haslo) {
     else
         cout << "Haslo jest silne" << endl;
 }
+
 /**
  * @brief Zapisuje informacje o haśle do pliku.
  * @param haslo Referencja do obiektu Haslo, którego informacje mają zostać zapisane.

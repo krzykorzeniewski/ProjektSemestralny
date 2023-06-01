@@ -1,11 +1,9 @@
-//
-// Created by Krzysiek on 27.05.2023.
-//
-
 #include "Kategoria.h"
 #include "Haslo.h"
 using namespace std;
 #include <string>
+#include <algorithm>
+#include <iostream>
 
 Kategoria::Kategoria(const string &nazwa) : nazwa(nazwa) {}
 
@@ -16,15 +14,27 @@ const string &Kategoria::getNazwa() const {
 void Kategoria::setNazwa(const string &nazwa) {
     this->nazwa = nazwa;
 }
-
-bool Kategoria::operator<(const Kategoria& other) const {
-    return nazwa < other.nazwa;
-}
-
+/**
+* @brief Dodaje obiekt Haslo do wektora danej kategorii.
+* @param haslo Wskaźnik do obiektu Haslo, który ma być dodany.
+*/
 void Kategoria::dodajHaslo (Haslo* haslo) {
     hasla.push_back(haslo);
 }
 
+/**
+* @brief Usuwa wszystkie obiekty Haslo z danej kategorii.
+*/
 void Kategoria::usunHasla () {
     hasla.clear();
 }
+
+ void Kategoria::usunHaslo (Haslo* haslo) {
+    auto range = std::ranges::remove_if(hasla, [haslo](Haslo* temp) -> bool {return haslo->getTresc() == temp->getTresc();});
+    hasla.erase(range.begin(), range.end());
+}
+
+const vector<Haslo *> &Kategoria::getHasla() const {
+    return hasla;
+}
+

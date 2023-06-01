@@ -1,35 +1,32 @@
-//
-// Created by Krzysiek on 27.05.2023.
-//
-
 #ifndef PROJEKTSEMESTRALNY_HASLO_H
 #define PROJEKTSEMESTRALNY_HASLO_H
 #include <string>
 #include "Kategoria.h"
+using namespace std;
 
 class Kategoria;
 
 class Haslo {
 private:
-    std::string nazwa;
-    std::string tresc;
+    string nazwa;
+    string tresc;
     Kategoria* kategoria;
-    std::string stronaInternetowa;
-    std::string login;
+    string stronaInternetowa;
+    string login;
 public:
-    Haslo(const std::string& nazwa, const std::string& tresc, Kategoria* kategoria);
-    Haslo(const std::string& nazwa, const std::string& tresc, Kategoria* kategoria, const std::string& stronaInternetowa, const std::string& login);
-    const std::string& getNazwa() const;
-    void zmienNazweKategorii(const std::string& nazwa);
-    void setNazwa(const std::string& nazwa);
+    Haslo(const string& nazwa, const string& tresc, Kategoria* kategoria);
+    Haslo(const string& nazwa, const string& tresc, Kategoria* kategoria, const string& stronaInternetowa, const string& login);
+    const string& getNazwa() const;
+    void zmienNazweKategorii(const string& nazwa);
+    void setNazwa(const string& nazwa);
     void setKategoria(Kategoria* kategoria);
-    void setStronaInternetowa(const std::string& stronaInternetowa);
-    void setLogin(const std::string& login);
-    void setTresc(const std::string& tresc);
-    const std::string& getTresc() const;
-    const Kategoria* getKategoria() const;
-    const std::string& getStronaInternetowa() const;
-    const std::string& getLogin() const;
+    void setStronaInternetowa(const string& stronaInternetowa);
+    void setLogin(const string& login);
+    void setTresc(const string& tresc);
+    const string& getTresc() const;
+    Kategoria *const getKategoria() const;
+    const string& getStronaInternetowa() const;
+    const string& getLogin() const;
 };
 
 

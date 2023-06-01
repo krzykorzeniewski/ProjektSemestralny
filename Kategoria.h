@@ -1,7 +1,3 @@
-//
-// Created by Krzysiek on 27.05.2023.
-//
-
 #ifndef PROJEKTSEMESTRALNY_KATEGORIA_H
 #define PROJEKTSEMESTRALNY_KATEGORIA_H
 #include <string>
@@ -17,11 +13,12 @@ private:
     vector<Haslo*> hasla;
 public:
     Kategoria(const string& nazwa);
-    const std::string& getNazwa() const;
+    const string& getNazwa() const;
     void setNazwa(const string& nazwa);
-    bool operator<(const Kategoria& other) const;
     void dodajHaslo(Haslo* haslo);
     void usunHasla();
+    void usunHaslo (Haslo* haslo);
+    const vector<Haslo *> &getHasla() const;
 };
 
 

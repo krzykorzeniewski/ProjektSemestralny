@@ -1,7 +1,3 @@
-//
-// Created by Krzysiek on 27.05.2023.
-//
-
 #include "Haslo.h"
 #include "Kategoria.h"
 #include <string>
@@ -42,7 +38,7 @@ const string &Haslo::getTresc() const {
     return tresc;
 }
 
-const Kategoria* Haslo::getKategoria() const {
+Kategoria *const Haslo::getKategoria() const {
     return kategoria;
 }
 
