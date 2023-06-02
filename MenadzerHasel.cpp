@@ -1,5 +1,5 @@
 /**
- * @file MenadzerHasel.h
+ * @file MenadzerHasel.cpp
  * @brief Definicja klasy MenadzerHasel.
  */
 #include <ctime>
@@ -117,7 +117,7 @@ void MenadzerHasel::odszyfrujPlik(const string &nazwaPliku) {
  */
 void MenadzerHasel::zaszyfrujPlik(const string &nazwaPliku) {
     auto testStream = fstream(nazwaPliku, ios::in | ios::out);
-    if (!zaszyfrowany) {
+    if (!zaszyfrowany && testStream.peek() == '[') {
         cout << "Pod jakim haslem zaszyfrowac plik?" << endl;
         string klucz;
         cin >> klucz;
@@ -192,7 +192,7 @@ void MenadzerHasel::dodajHaslo() {
                 break;
             }
             default:
-                cout << "Cos poszlo nie tak - sprobuj ponownie!" << endl;
+                cout << "Podano zla opcje - sprobuj ponownie!" << endl;
                 break;
         }
     }
@@ -276,7 +276,6 @@ void MenadzerHasel::posortujHasla() {
                 break;
             case 3:
                 stillWork = false;
-                cout << "Tu menu powinno byc" << endl;
                 break;
             default:
                 cout << "Cos poszlo nie tak" << endl;
@@ -313,7 +312,6 @@ void MenadzerHasel::edytujHaslo() {
         cout << "Wybierz co chcesz edytowac" << endl;
         cout << "1 - nazwa hasla" << endl;
         cout << "2 - tresc hasla" << endl;
-        cout << "3 - kategoria" << endl;
 
         cin >> userNumber;
 
@@ -323,6 +321,7 @@ void MenadzerHasel::edytujHaslo() {
                     cout << "Podaj nowa nazwe hasla" << endl;
                     cin >> userChange;
                     zapisaneHasla.at(index).setNazwa(userChange);
+                    cout << "Nazwa hasla zmieniona!" << endl;
                 } else
                     cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
                 break;
@@ -332,21 +331,13 @@ void MenadzerHasel::edytujHaslo() {
                     cout << "Podaj nowa tresc hasla" << endl;
                     cin >> userChange;
                     zapisaneHasla.at(index).setTresc(userChange);
-                } else
-                    cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
-                break;
-            }
-            case 3: {
-                if (czyIstnieje) {
-                    cout << "Podaj nowa kategorie hasla" << endl;
-                    cin >> userChange;
-                    zapisaneHasla.at(index).zmienNazweKategorii(userChange);
+                    cout << "Tresc hasla zmieniona!" << endl;
                 } else
                     cout << "Nie ma takiego hasla - sprobuj ponowie!" << endl;
                 break;
             }
             default:
-                cout << "cos poszlo nie tak" << endl;
+                cout << "podano zla opcje - sprobuj ponownie" << endl;
                 break;
         }
     }

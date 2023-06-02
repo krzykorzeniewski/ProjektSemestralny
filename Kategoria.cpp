@@ -1,9 +1,12 @@
+/**
+ * @file Kategoria.cpp
+ * @brief Definicja klasy Kategoria.
+ */
 #include "Kategoria.h"
 #include "Haslo.h"
 using namespace std;
 #include <string>
 #include <algorithm>
-#include <iostream>
 
 Kategoria::Kategoria(const string &nazwa) : nazwa(nazwa) {}
 
@@ -29,6 +32,10 @@ void Kategoria::usunHasla () {
     hasla.clear();
 }
 
+/**
+* @brief Usuwa obiekt Haslo w wektorze w kategorii.
+* @param haslo Wskaźnik do obiektu Haslo, który ma być usuniety.
+*/
  void Kategoria::usunHaslo (Haslo* haslo) {
     auto range = std::ranges::remove_if(hasla, [haslo](Haslo* temp) -> bool {return haslo->getTresc() == temp->getTresc();});
     hasla.erase(range.begin(), range.end());

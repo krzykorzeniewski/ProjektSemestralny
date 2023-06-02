@@ -78,7 +78,7 @@ int main() {
                 stillWork = false;
                 break;
             default:
-                cout << "cos poszlo nie tak - sprobuj ponownie" << endl;
+                cout << "Podano zla opcje - sprobuj ponownie" << endl;
                 wyswietlMenu();
                 break;
         }
